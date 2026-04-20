@@ -11,7 +11,6 @@
         id="app"
         data-props='@json([
             "polls" => $polls,
-            "loginUrl" => route("login"),
         ])'
     ></div>
 </x-vue-app-layout>

@@ -1,7 +1,22 @@
 <script setup>
+  import {useFetchApi} from '../composables/useFetchApi';
+
   defineProps({
     polls: { type: Array, default: () => [] },
   });
+
+  const { fetchApi } = useFetchApi();
+
+  function fetchDelete(id) {
+    console.log('Delete poll with ID:', id);
+    fetchApi({ url: `/polls/${id}`, method: 'DELETE' })
+      .then(() => {
+        console.log('Poll deleted successfully');
+      })
+      .catch(err => {
+        console.error('Error deleting poll:', err);
+      });
+  }
 </script>
 
 <template>
@@ -16,6 +31,7 @@
         <th class="border px-3 py-2">Brouillon</th>
         <th class="border px-3 py-2">Debut</th>
         <th class="border px-3 py-2">Fin</th>
+        <th class="border px-3 py-2">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -26,6 +42,9 @@
         <td class="border px-3 py-2">{{ poll.is_draft ? 'Oui' : 'Non' }}</td>
         <td class="border px-3 py-2">{{ poll.started_at || '-' }}</td>
         <td class="border px-3 py-2">{{ poll.ends_at || '-' }}</td>
+        <td class="border px-3 py-2">
+          <button @click="fetchDelete(poll.id)">DEL</button>
+        </td>
       </tr>
     </tbody>
   </table>
