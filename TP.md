@@ -8,23 +8,37 @@ sous la forme d'un système de sondage multi-plateforme.
 L'objectif est de concevoir une interface permettant de créer, configurer, consulter et utiliser des
 sondages à travers une API JSON consommée par le frontend.
 
+Dans cette application, un sondage est un objet créé par une personne authentifiée, contenant une
+question, plusieurs options de réponse et un ensemble de paramètres définissant son comportement
+(brouillon ou lancé, choix simple ou multiple, changement de vote, visibilité des résultats et
+éventuelle durée de disponibilité).
+
 Les modèles Eloquent de base sont fournis. Le travail portera principalement sur :
 
 - le frontend Vue.js
 - les endpoints backend JSON nécessaires au fonctionnement du frontend
 
-Le système de sondage attendu repose notamment sur les fonctionnalités suivantes :
+Le système de sondage attendu repose notamment sur les fonctionnalités UI suivantes :
 
-- un sondage appartient à une personne authentifiée
-- un sondage contient une question et plusieurs options
-- un sondage est par défaut en mode brouillon ; l'utilisateur pourra lancer le sondage directement à
-  sa création, ou a posteriori
-- un sondage peut autoriser un ou plusieurs choix
-- un sondage peut autoriser ou non le changement de vote
-- les résultats peuvent être publics ou privés
-- un sondage peut avoir une durée ; la date de début et la date de fin seront calculées au moment où
-  le mode brouillon est désactivé, à partir du temps actuel et de cette durée
-- les votes sont associés à une personne authentifiée et à une option
+- afficher à la personne connectée la liste de ses sondages
+- permettre à la personne connectée de créer, modifier et supprimer ses sondages
+- permettre de définir la question, les options de réponse et les paramètres du sondage
+- créer un sondage en mode brouillon, puis permettre de le démarrer soit au moment de sa création,
+  soit plus tard
+- permettre de configurer si le sondage accepte un choix simple ou plusieurs choix
+- permettre de configurer si le vote peut être modifié après soumission
+- permettre de configurer si les résultats sont publics ou non
+- permettre de configurer une durée de disponibilité du sondage
+- permettre au créateur d'un sondage d'obtenir facilement le lien de partage contenant le token
+- afficher une page de vote accessible via un lien contenant un token dans l'URL
+- permettre à une personne authentifiée ayant reçu ce lien de voter au sondage
+- permettre à une personne non authentifiée ayant reçu ce lien de consulter les résultats si, et
+  seulement si, leur visibilité est publique
+- afficher sur la page de vote les résultats en direct, via un polling régulier vers l'API
+- afficher sur la page de vote un aperçu graphique des résultats ; le type de graphique est libre
+- permettre, si le sondage l'autorise, de modifier un vote déjà soumis
+- indiquer clairement sur la page de vote qu'il n'est plus possible de voter lorsque la date de fin
+  d'un sondage avec durée est dépassée
 
 ## Objectifs pédagogiques
 
@@ -47,22 +61,9 @@ Vous développerez une application web en deux parties :
   sur navigateur et mobile, avec une approche mobile first
 
 Les modèles sont déjà fournis. Vous devez construire autour de ceux-ci les fonctionnalités utiles au
-frontend.
-
-Fonctionnalités attendues :
-
-- afficher la liste des sondages de la personne connectée
-- permettre la création et l'édition d'un sondage, avec modification limitée au titre une fois le
-  sondage lancé
-- gérer les options d'un sondage
-- gérer le mode brouillon
-- gérer le choix simple ou multiple
-- gérer l'autorisation ou non du changement de vote
-- gérer la visibilité publique ou non des résultats
-- gérer les dates ou la durée de disponibilité
-- afficher un sondage accessible via un token
-- permettre de voter
-- afficher les résultats via polling avec un graphique visualisant en direct leur évolution
+frontend. Les modèles existants permettent naturellement de représenter plusieurs choix pour un même sondage.
+Par conséquent, lorsqu'un sondage est configuré en choix unique, l'unicité du vote doit être
+garantie à la fois côté frontend et côté API.
 
 La structure exacte de l'interface est libre, à condition que l'application reste claire,
 fonctionnelle et cohérente.
