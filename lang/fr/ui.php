@@ -231,6 +231,6 @@ return [
         ],
     ],
     'polls' => [
-        'title' => 'Tous les sondages',
+        'dashboard' => 'Dashboard',
     ]
 ];

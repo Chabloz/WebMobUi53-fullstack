@@ -26,7 +26,10 @@
     </thead>
     <tbody>
       <tr v-for="poll in polls" :key="poll.id">
-        <td class="border px-3 py-2"><button @click="delPoll(poll.id)">Supp.</button></td>
+        <td class="border px-3 py-2">
+          <button class="bg-red-500" @click="delPoll(poll.id)">🗑️</button>
+          <button  class="bg-slate-50 border">✏️</button>
+        </td>
         <td class="border px-3 py-2">{{ poll.id }}</td>
         <td class="border px-3 py-2">{{ poll.title || '-' }}</td>
         <td class="border px-3 py-2">{{ poll.question }}</td>
@@ -40,8 +43,6 @@
 
 <style scoped>
   button {
-    background-color: #e3342f;
-    color: white;
     padding: 0.25rem 0.5rem;
     border: none;
     border-radius: 0.25rem;
