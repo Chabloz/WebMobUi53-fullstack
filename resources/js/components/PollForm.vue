@@ -1,4 +1,5 @@
-<script setup> // utilisation de composition API 
+<script setup> 
+// utilisation de composition API 
   import { ref } from 'vue';
   import { usePollStore } from '@/stores/usePollStore';
 
