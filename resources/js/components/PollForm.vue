@@ -5,7 +5,7 @@
 
   const { createPoll, loading, error, clearError } = usePollStore();
 
-  // valeurs réactives : 
+  // valeurs réactives du formulaire : 
   const title = ref('');
   const question = ref('');
   const options = ref([
@@ -124,19 +124,29 @@
       <input id="duration" v-model="duration" type="number" min="1">
     </div>
 
-    <button type="submit" :disabled="loading">
+    <!-- CHANGEMENT :
+         On ajoute une classe spécifique au bouton de soumission.
+         Avant, ce bouton utilisait le style global des boutons.
+         Maintenant, il a un vrai style de bouton principal. -->
+    <button class="submit-button" type="submit" :disabled="loading">
       {{ loading ? 'Création...' : 'Créer le sondage' }}
     </button>
   </form>
 </template>
 
 <style scoped>
-  .poll-form {
-    margin-bottom: 2rem;
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 0.5rem;
-  }
+
+/* CHANGEMENT :
+   On limite la largeur du formulaire et on le centre.
+   Avant, il prenait toute la largeur disponible. */
+   .poll-form {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  padding: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.75rem;
+  background-color: white;
+}
 
   .poll-form div {
     margin-bottom: 1rem;
@@ -177,5 +187,33 @@
     color: #842029;
     background-color: #f8d7da;
     border-radius: 0.25rem;
+  }
+
+  /* CHANGEMENT :
+     Style spécifique du bouton principal de création.
+     On le différencie des petits boutons comme "Retirer" ou "Ajouter une option". */
+  .submit-button {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* CHANGEMENT :
+     Effet visuel au survol pour montrer que le bouton est interactif. */
+  .submit-button:hover {
+    background-color: #1d4ed8;
+  }
+
+  /* CHANGEMENT :
+     Quand loading vaut true, le bouton est désactivé.
+     On baisse l’opacité pour montrer visuellement que l’action est bloquée. */
+  .submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 </style>
