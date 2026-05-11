@@ -1,21 +1,44 @@
-<script setup> 
-// utilisation de composition API 
-  import { ref } from 'vue';
+<script setup>
+  // Utilisation de la Composition API
+  import { computed, ref } from 'vue';
   import { usePollStore } from '@/stores/usePollStore';
 
-  const { createPoll, loading, error, clearError } = usePollStore();
+  // CHANGEMENT :
+  // Le formulaire peut maintenant recevoir un sondage existant.
+  // Si poll vaut null → création
+  // Si poll contient un objet → édition
+  const props = defineProps({
+    poll: { type: Object, default: null },
+  });
 
-  // valeurs réactives du formulaire : 
-  const title = ref('');
-  const question = ref('');
-  const options = ref([
-    { label: '' },
-    { label: '' },
-  ]);
-  const isDraft = ref(true);
-  const allowMultipleChoices = ref(false);
-  const resultsPublic = ref(false);
-  const duration = ref('');
+  // CHANGEMENT :
+  // On récupère aussi updatePoll pour pouvoir modifier un sondage.
+  const { createPoll, updatePoll, loading, error, clearError } = usePollStore();
+
+  // CHANGEMENT :
+  // Permet de savoir si le formulaire est en mode édition.
+  const isEditing = computed(() => props.poll !== null);
+
+  // CHANGEMENT :
+  // Les champs sont préremplis si on édite un sondage.
+  const title = ref(props.poll?.title || '');
+  const question = ref(props.poll?.question || '');
+  const options = ref(
+    props.poll?.options?.length
+      ? props.poll.options.map(option => ({
+          id: option.id,
+          label: option.label,
+        }))
+      : [
+          { label: '' },
+          { label: '' },
+        ]
+  );
+
+  const isDraft = ref(props.poll?.is_draft ?? true);
+  const allowMultipleChoices = ref(props.poll?.allow_multiple_choices ?? false);
+  const resultsPublic = ref(props.poll?.results_public ?? false);
+  const duration = ref(props.poll?.duration || '');
 
   function addOption() {
     options.value.push({ label: '' });
@@ -35,31 +58,31 @@
       options: options.value.filter(option => option.label.trim() !== ''),
       is_draft: isDraft.value,
       allow_multiple_choices: allowMultipleChoices.value,
+      allow_vote_change: false,
       results_public: resultsPublic.value,
       duration: duration.value ? Number(duration.value) : null,
     };
 
-    const result = await createPoll(payload);
+    // CHANGEMENT :
+    // Si on édite, on appelle PATCH avec updatePoll.
+    // Sinon, on appelle POST avec createPoll.
+    const result = isEditing.value
+      ? await updatePoll(props.poll.id, payload)
+      : await createPoll(payload);
 
-    // reset du formulaire : pour permettre de créer un nouveau sondage 
     if (result) {
-      title.value = '';
-      question.value = '';
-      options.value = [
-        { label: '' },
-        { label: '' },
-      ];
-      isDraft.value = true;
-      allowMultipleChoices.value = false;
-      resultsPublic.value = false;
-      duration.value = '';
+      // CHANGEMENT :
+      // Après modification ou création, on retourne au dashboard.
+      window.location.href = '/polls/dashboard';
     }
   }
 </script>
 
 <template>
   <form class="poll-form" @submit.prevent="submitForm">
-    <h2>Créer un sondage</h2>
+    <!-- CHANGEMENT :
+         Le titre change selon le mode du formulaire. -->
+    <h2>{{ isEditing ? 'Modifier le sondage' : 'Créer un sondage' }}</h2>
 
     <p v-if="error" class="error">{{ error }}</p>
 
@@ -78,7 +101,7 @@
 
       <div
         v-for="(option, index) in options"
-        :key="index"
+        :key="option.id || index"
         class="option-row"
       >
         <input
@@ -120,33 +143,41 @@
     </div>
 
     <div>
-      <label for="duration">Durée en secondes</label>
-      <input id="duration" v-model="duration" type="number" min="1">
+      <label for="duration">Durée de disponibilité</label>
+      <input
+        id="duration"
+        v-model="duration"
+        type="number"
+        min="1"
+        placeholder="Laisser vide pour aucune limite"
+      >
     </div>
 
     <!-- CHANGEMENT :
-         On ajoute une classe spécifique au bouton de soumission.
-         Avant, ce bouton utilisait le style global des boutons.
-         Maintenant, il a un vrai style de bouton principal. -->
+         Le texte du bouton change selon le mode création / édition. -->
     <button class="submit-button" type="submit" :disabled="loading">
-      {{ loading ? 'Création...' : 'Créer le sondage' }}
+      <span v-if="loading">
+        {{ isEditing ? 'Modification...' : 'Création...' }}
+      </span>
+
+      <span v-else>
+        {{ isEditing ? 'Modifier le sondage' : 'Créer le sondage' }}
+      </span>
     </button>
   </form>
 </template>
 
 <style scoped>
-
-/* CHANGEMENT :
-   On limite la largeur du formulaire et on le centre.
-   Avant, il prenait toute la largeur disponible. */
-   .poll-form {
-  max-width: 700px;
-  margin: 0 auto 2rem;
-  padding: 1.5rem;
-  border: 1px solid #ddd;
-  border-radius: 0.75rem;
-  background-color: white;
-}
+  /* CHANGEMENT :
+     Formulaire centré et limité en largeur pour éviter qu’il prenne toute la page. */
+  .poll-form {
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    background-color: white;
+  }
 
   .poll-form div {
     margin-bottom: 1rem;
@@ -189,9 +220,6 @@
     border-radius: 0.25rem;
   }
 
-  /* CHANGEMENT :
-     Style spécifique du bouton principal de création.
-     On le différencie des petits boutons comme "Retirer" ou "Ajouter une option". */
   .submit-button {
     display: inline-block;
     padding: 0.75rem 1rem;
@@ -203,15 +231,10 @@
     cursor: pointer;
   }
 
-  /* CHANGEMENT :
-     Effet visuel au survol pour montrer que le bouton est interactif. */
   .submit-button:hover {
     background-color: #1d4ed8;
   }
 
-  /* CHANGEMENT :
-     Quand loading vaut true, le bouton est désactivé.
-     On baisse l’opacité pour montrer visuellement que l’action est bloquée. */
   .submit-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;

@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PollOption extends Model
 {
+    // CHANGEMENT :
+    // Autorise la création automatique d'une option avec create([...]).
+    // Sans ça, Laravel bloque le champ "label" par sécurité.
+    protected $fillable = [
+        'label',
+    ];
+
     /**
      * Get the poll that owns the option.
      */

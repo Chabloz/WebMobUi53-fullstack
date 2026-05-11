@@ -17,16 +17,28 @@
 
 <template>
   <p>
-    <a v-if="mode !== 'create'" href="/polls/dashboard/create">
+    <!-- CHANGEMENT :
+         Sur le dashboard principal, on affiche le lien vers la création. -->
+    <a v-if="mode === 'index'" href="/polls/dashboard/create">
       Créer un sondage
     </a>
 
+    <!-- CHANGEMENT :
+         Sur les pages create et edit, on affiche un retour vers le dashboard. -->
     <a v-else href="/polls/dashboard">
       Retour au dashboard
     </a>
   </p>
 
-  <PollForm v-if="mode === 'create'" />
+  <!-- CHANGEMENT :
+       On affiche le formulaire en mode création ET en mode édition.
+       En mode édition, on lui transmet le sondage à modifier. -->
+  <PollForm
+    v-if="mode === 'create' || mode === 'edit'"
+    :poll="pollToEdit"
+  />
 
-  <PollTable />
+  <!-- CHANGEMENT :
+       Le tableau s’affiche uniquement sur la page principale. -->
+  <PollTable v-else />
 </template>
