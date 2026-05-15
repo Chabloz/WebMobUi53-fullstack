@@ -1,5 +1,6 @@
 <script setup>
   import { usePollStore } from '@/stores/usePollStore';
+import { onMounted } from 'vue';
 
   const { polls, deletePoll } = usePollStore();
 
@@ -7,6 +8,11 @@
     console.log('delete Poll ID:', id);
     await deletePoll(id);
   }
+
+  onMounted(() => {
+    const { updatePolls } = usePollStore();
+    updatePolls();
+  })
 </script>
 
 <template>

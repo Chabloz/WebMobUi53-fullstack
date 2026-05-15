@@ -1,12 +1,16 @@
 <script setup>
 import { ref } from 'vue';
 import { usePollStore } from '@/stores/usePollStore';
+import { useFetchApi } from '../composables/useFetchApi';
+import { useHashRoute } from '../composables/useHashRoute';
 
   const props = defineProps({
     poll: { type: Object, default: null }
   });
 
   const editMode = props.poll !== null;
+  const { fetchApi } = useFetchApi();
+  const emit = defineEmits('formsubmitted');
 
   function initForm() {
     const form = editMode
@@ -42,9 +46,6 @@ import { usePollStore } from '@/stores/usePollStore';
   const errors = ref({});
   const loading = ref(false);
 
-  const method = editMode? 'PUT' : 'POST';
-  const action = editMode? `/polls/${form.id}` : `/polls` ;
-
   function delOption(i) {
     if (form.value.options.length > 2) {
         form.value.options.splice(i, 1);
@@ -55,8 +56,57 @@ import { usePollStore } from '@/stores/usePollStore';
     form.value.options.push({label : ''});
   }
 
-  function submitForm() {
+  function validateForm() {
+    errors.value = {};
 
+    if (!form.value.question) {
+        errors.value.question = 'La question est obligatoire.';
+    } else if (form.value.question.length < 3) {
+        errors.value.question = 'La question doit faire min. 3 caractères.';
+    } else if (form.value.question.length > 255) {
+        errors.value.question = 'La question doit faire max. 255 caractères.';
+    }
+
+    if (form.value.title.length > 255) {
+        errors.value.title = 'La question doit faire max. 255 caractères.';
+    }
+
+    if (form.value.options.length < 2) {
+        errors.value.options = 'Il faut au moins 2 options.';
+    }
+
+    let optionErrorFound = false;
+    form.value.options.forEach(option => {
+        if (!optionErrorFound) {
+            if (!option.label || option.label.length < 1) {
+                errors.value.options = 'Les options ne peuvent pas être vides.';
+                optionErrorFound = true;
+            } else if (option.label.length > 255) {
+                errors.value.options = 'Les options doivent faire max. 255 caractères.';
+                optionErrorFound = true;
+            }
+        }
+    });
+
+    return Object.keys(errors.value).length === 0;
+  }
+
+  const method = editMode? 'PUT' : 'POST';
+  const url = editMode? `/polls/${form.id}` : `/polls` ;
+
+  async function submitForm() {
+    if (validateForm()) {
+        loading.value = true;
+
+        try {
+            const poll = await fetchApi({ url: url, method: method, data: form.value });
+            emit('formsubmitted', poll);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            loading.value = false;
+        }
+    }
   }
 
   function saveDraft() {
@@ -138,8 +188,8 @@ import { usePollStore } from '@/stores/usePollStore';
             </div>
 
             <div class="flex justify-end gap-3">
-                <button @click="saveDraft" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">Enregistrer le Brouillon</button>
-                <button @click="publishPoll" class="px-4 py-2 bg-teal-600 dark:bg-purple-900 text-white rounded-md hover:bg-teal-700 dark:hover:bg-purple-800 cursor-pointer">Publier le formulaire</button>
+                <button @click="saveDraft" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer" :disabled="loading">Enregistrer le Brouillon</button>
+                <button @click="publishPoll" class="px-4 py-2 bg-teal-600 dark:bg-purple-900 text-white rounded-md hover:bg-teal-700 dark:hover:bg-purple-800 cursor-pointer" :disabled="loading">Publier le formulaire</button>
             </div>
         </form>
     </article>

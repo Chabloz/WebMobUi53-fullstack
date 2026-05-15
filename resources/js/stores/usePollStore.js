@@ -10,6 +10,16 @@ export function usePollStore() {
     polls.value = data;
   }
 
+  async function updatePolls() {
+    try {
+      const data = await fetchApi({ url: 'polls', method: 'GET' });
+      polls.value = data;
+    } catch (error) {
+      console.error(error);
+    }
+
+  }
+
   async function deletePoll(id) {
     const result = await fetchApi({ url: 'polls/' + id, method: 'DELETE' });
     if (result) {
@@ -17,5 +27,5 @@ export function usePollStore() {
     }
   }
 
-  return { polls, setPolls, deletePoll };
+  return { polls, setPolls, updatePolls, deletePoll };
 }
