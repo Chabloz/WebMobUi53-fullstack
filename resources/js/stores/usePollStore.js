@@ -17,7 +17,6 @@ export function usePollStore() {
     } catch (error) {
       console.error(error);
     }
-
   }
 
   async function deletePoll(id) {

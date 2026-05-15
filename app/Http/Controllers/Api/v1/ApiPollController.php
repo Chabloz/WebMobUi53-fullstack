@@ -14,7 +14,7 @@ class ApiPollController extends Controller
      */
     public function index(Request $request)
     {
-        $polls = $request->user()->polls()->orderBy('created_at', 'desc')->get();
+        $polls = $request->user()->polls()->orderBy('created_at', 'desc')->with('options')->get();
 
         return $polls;
     }
@@ -84,7 +84,7 @@ class ApiPollController extends Controller
             return response()->json(['message' => 'Poll not found.'], 404);
         }
 
-        if ($poll->user !== $request->user()) {
+        if ($poll->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 
