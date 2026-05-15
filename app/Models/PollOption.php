@@ -9,6 +9,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class PollOption extends Model
 {
     /**
+     * Enables mass reassignment for these fields
+     */
+    protected $fillable = [
+    'label',
+    ];
+
+    /**
      * Get the poll that owns the option.
      */
     public function poll(): BelongsTo

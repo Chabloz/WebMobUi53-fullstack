@@ -24,5 +24,5 @@
 </script>
 
 <template>
-  <component :is="currentComponent"></component>
+  <component :is="currentComponent" @formsubmitted="navigateTo('#dashboard')"></component>
 </template>

@@ -1,5 +1,6 @@
 <script setup>
   import { usePollStore } from '@/stores/usePollStore';
+import { onMounted } from 'vue';
 
   const { polls, deletePoll } = usePollStore();
 
@@ -7,6 +8,11 @@
     console.log('delete Poll ID:', id);
     await deletePoll(id);
   }
+
+  onMounted(() => {
+    const { updatePolls } = usePollStore();
+    updatePolls();
+  })
 </script>
 
 <template>
@@ -28,7 +34,7 @@
       <tr v-for="poll in polls" :key="poll.id">
         <td class="border px-3 py-2">
           <button class="bg-red-500" @click="delPoll(poll.id)">🗑️</button>
-          <button  class="bg-slate-50 border">✏️</button>
+          <button class="bg-slate-50 border">✏️</button>
         </td>
         <td class="border px-3 py-2">{{ poll.id }}</td>
         <td class="border px-3 py-2">{{ poll.title || '-' }}</td>
