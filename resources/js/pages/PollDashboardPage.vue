@@ -3,9 +3,7 @@
   import { usePollStore } from '@/stores/usePollStore';
 import { useHashRoute } from '../composables/useHashRoute';
 
-  const props = defineProps({
-    
-  });
+  const emit = defineEmits('editpoll');
 
 </script>
 
@@ -14,5 +12,5 @@ import { useHashRoute } from '../composables/useHashRoute';
   <a href="#create" class="mt-6 block w-full px-4 py-2 bg-teal-600 dark:bg-purple-900 text-white rounded-md hover:bg-teal-700 dark:hover:bg-purple-800 text-center">
             Créer un nouveau sondage
         </a>
-  <PollTable class="mt-8"/>
+  <PollTable class="mt-8" @editpoll="pollId => emit('editpoll', pollId)"/>
 </template>

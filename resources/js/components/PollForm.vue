@@ -92,7 +92,7 @@ import { useHashRoute } from '../composables/useHashRoute';
   }
 
   const method = editMode? 'PUT' : 'POST';
-  const url = editMode? `/polls/${form.id}` : `/polls` ;
+  const url = editMode? `/polls/${form.value.id}` : `/polls` ;
 
   async function submitForm() {
     if (validateForm()) {

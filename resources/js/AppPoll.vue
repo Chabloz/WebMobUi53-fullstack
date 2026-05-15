@@ -4,6 +4,8 @@
   import { useHashRoute } from './composables/useHashRoute';
   import PollDashboardPage from './pages/PollDashboardPage.vue';
   import CreatePollPage from './pages/CreatePollPage.vue';
+  import EditPollPage from './pages/EditPollPage.vue';
+  import { computed } from 'vue';
 
   const props = defineProps({
     polls: { type: Array, default: () => [] },
@@ -17,12 +19,14 @@
   const routes = [
     { hash: '#dashboard', component: PollDashboardPage },
     { hash: '#create', component: CreatePollPage },
-    // { hash: '#edit', component: EditPollPage }
+    { hash: '#edit', component: EditPollPage }
   ]
 
-  const { currentComponent, currentRoute, navigateTo } = useHashRoute(routes);
+  const { currentComponent, currentHashs, currentRoute, navigateTo } = useHashRoute(routes);
+
 </script>
 
 <template>
-  <component :is="currentComponent" @formsubmitted="navigateTo('#dashboard')"></component>
+  <component :is="currentComponent" :pollId="currentHashs[1]" 
+  @formsubmitted="navigateTo('#dashboard')" @editpoll="pollId => navigateTo(`#edit/${pollId}`)"></component>
 </template>
