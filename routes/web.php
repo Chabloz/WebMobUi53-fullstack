@@ -32,7 +32,7 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/polls/dashboard', PollDashboardController::class)->name('polls.dashboard');
+    Route::get('/polls', PollDashboardController::class)->name('polls.dashboard');
     Route::resource('posts', PostController::class)->except(['index', 'show']);
     Route::singleton('my-profile', MyProfileController::class)->destroyable();
     Route::match(['put', 'patch'], '/likes/{post}', [LikeController::class, 'update']);
