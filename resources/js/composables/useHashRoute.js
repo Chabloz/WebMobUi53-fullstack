@@ -5,8 +5,10 @@ export function useHashRoute(routes) {
   const currentRoute = shallowRef(defaultRoute);
 
   function syncRouteFromUrl() {
-    const hash = window.location.hash;
+    const hashs = window.location.hash.split('/');
+    const hash = hashs[0];
     currentRoute.value = routes.find(route => route.hash === hash) ?? defaultRoute;
+    currentRoute.value.hashs = hashs ?? [];
   }
 
   function navigateTo(hash) {
@@ -27,7 +29,8 @@ export function useHashRoute(routes) {
   });
 
   const currentComponent = computed(() => currentRoute.value.component);
+  const currentHashs = computed(() => currentRoute.value.hashs);
   syncRouteFromUrl();
 
-  return { currentComponent, currentRoute, navigateTo };
+  return { currentComponent, currentHashs, currentRoute, navigateTo };
 }
