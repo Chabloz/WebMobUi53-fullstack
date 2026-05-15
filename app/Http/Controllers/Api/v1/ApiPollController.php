@@ -41,7 +41,7 @@ class ApiPollController extends Controller
             'question' => 'required|string|min:3|max:255',
             'title' => 'nullable|string|max:255',
             'options' => 'required|array|min:2',
-            'options.*' => 'required|string|min:1|max:255',
+            'options.*.label' => 'required|string|min:1|max:255',
             'allow_multiple_choices' => 'boolean',
             'allow_vote_change' => 'boolean',
             'results_public' => 'boolean',
