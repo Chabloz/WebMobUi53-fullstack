@@ -1,6 +1,7 @@
 <script setup>
   import { usePollStore } from '@/stores/usePollStore';
 import { onMounted } from 'vue';
+import PollStatusBadge from './PollStatusBadge.vue';
 
   const { polls, deletePoll } = usePollStore();
 
@@ -27,7 +28,7 @@ import { onMounted } from 'vue';
         <th class="border px-3 py-2">ID</th>
         <th class="border px-3 py-2">Titre</th>
         <th class="border px-3 py-2">Question</th>
-        <th class="border px-3 py-2">Brouillon</th>
+        <th class="border px-3 py-2">Statut</th>
         <th class="border px-3 py-2">Debut</th>
         <th class="border px-3 py-2">Fin</th>
       </tr>
@@ -36,12 +37,15 @@ import { onMounted } from 'vue';
       <tr v-for="poll in polls" :key="poll.id">
         <td class="border px-3 py-2">
           <button class="bg-red-500" @click="delPoll(poll.id)">🗑️</button>
-          <button class="bg-slate-50 border" @click="emit('editpoll', poll.id)">✏️</button>
+          <button v-if="poll.is_draft" class="bg-slate-50 border" @click="emit('editpoll', poll.id)">✏️</button>
+          <button v-else class="bg-slate-50 border" @click="emit('polldetails', poll.id)">📊</button>
         </td>
         <td class="border px-3 py-2">{{ poll.id }}</td>
         <td class="border px-3 py-2">{{ poll.title || '-' }}</td>
         <td class="border px-3 py-2">{{ poll.question }}</td>
-        <td class="border px-3 py-2">{{ poll.is_draft ? 'Oui' : 'Non' }}</td>
+        <td class="border px-3 py-2">
+          <PollStatusBadge :poll="poll"></PollStatusBadge>
+        </td>
         <td class="border px-3 py-2">{{ poll.started_at || '-' }}</td>
         <td class="border px-3 py-2">{{ poll.ends_at || '-' }}</td>
       </tr>

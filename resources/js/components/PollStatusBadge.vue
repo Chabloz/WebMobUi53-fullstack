@@ -1,0 +1,20 @@
+<script setup>
+const props = defineProps({
+    poll: { type: Object, default: null }
+  });
+
+  const pollStatus = props.poll.is_draft
+  ? 'Brouillon'
+  : new Date(props.poll.ends_at) > Date.now()
+  ? 'Terminé'
+  : 'En cours';
+
+</script>
+
+<template>
+    <div class="py-1 px-2 text-sm rounded-full" 
+    :class="{ 'bg-green-200 text-green-800' : pollStatus === 'En cours',
+        'bg-slate-200 text-slate-800' : pollStatus === 'Brouillon',
+        'bg-red-200 text-red-800' : pollStatus === 'Terminé'
+     }">{{ pollStatus }}</div>
+</template>

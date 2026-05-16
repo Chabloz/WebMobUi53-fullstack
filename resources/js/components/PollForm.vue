@@ -9,7 +9,7 @@ import { useHashRoute } from '../composables/useHashRoute';
   });
 
   const editMode = props.poll !== null;
-  const pollDisabled = props.poll.is_draft === 0;
+  const pollDisabled = props.poll?.is_draft === 0;
   const { fetchApi } = useFetchApi();
   const emit = defineEmits('formsubmitted');
 
