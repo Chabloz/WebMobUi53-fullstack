@@ -9,8 +9,11 @@ import { useHashRoute } from '../composables/useHashRoute';
   });
 
   const editMode = props.poll !== null;
+  const pollDisabled = props.poll.is_draft === 0;
   const { fetchApi } = useFetchApi();
   const emit = defineEmits('formsubmitted');
+
+  console.log(props.poll)
 
   function initForm() {
     const form = editMode
@@ -123,14 +126,17 @@ import { useHashRoute } from '../composables/useHashRoute';
 </script>
 
 <template>
-    <article class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+    <div v-if="pollDisabled" class="w-full text-center py-3 my-3 rounded-md bg-red-200 text-red-900 dark:bg-red-900 dark:text-white">
+        <p>Ce formulaire a été publié et ne peut plus être modifié.</p>
+    </div>
 
-        <form @submit.prevent="submitForm">
+    <article class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+        <form @submit.prevent="submitForm" :class="{ 'opacity-40' : pollDisabled }">
             <div class="mb-4">
                 <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Titre (optionnel)
                 </label>
-                <input id="title" type="text" name="title" v-model="form.title"
+                <input id="title" type="text" name="title" v-model="form.title" :disabled="pollDisabled"
                     placeholder="Entrez un titre (optionnel)"
                     class="w-full px-3 py-2 border rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500"
                     :class="{'border-red-500 focus:ring-red-500' : errors.title}">
@@ -141,7 +147,7 @@ import { useHashRoute } from '../composables/useHashRoute';
                 <label for="question" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Question
                 </label>
-                <input id="question" type="text" name="question" v-model="form.question"
+                <input id="question" type="text" name="question" v-model="form.question" :disabled="pollDisabled"
                     placeholder="Quelle est votre question ?"
                     class="w-full px-3 py-2 border rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500"
                     :class="{'border-red-500 focus:ring-red-500' : errors.question}">
@@ -153,15 +159,17 @@ import { useHashRoute } from '../composables/useHashRoute';
                     Options
                 </label>
                 <div v-for="(option, index) in form.options" :key="index" class="w-full flex gap-2 mb-3 align-items-center">
-                    <input id="options" type="text" name="options" v-model="form.options[index].label"
+                    <input id="options" type="text" name="options" v-model="form.options[index].label" :disabled="pollDisabled"
                         :placeholder="`Option ${index+1}`"
                         class="w-full px-3 py-2 border rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500"
                         :class="{'border-red-500 focus:ring-red-500' : errors.options}">
-                    <button @click="delOption(index)" :disabled="form.options.length <= 2" 
+                    <button @click="delOption(index)" :disabled="form.options.length <= 2 || pollDisabled" 
                         class="ps-2 text-red-600 dark:text-red-400 disabled:opacity-40">✕</button>
                 </div>
                 <p v-if="errors.options" class="mt-1 text-sm text-red-600 dark:text-red-400">{{ errors?.options }}</p>
-                <button @click="addOption()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">Ajouter une option</button>
+                <button @click="addOption()" :disabled="pollDisabled" 
+                class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md"
+                :class="{ 'hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer' : !pollDisabled }">Ajouter une option</button>
             </div>
 
             <div class="mb-4">
@@ -169,27 +177,29 @@ import { useHashRoute } from '../composables/useHashRoute';
                     Paramètres
                 </label>
                 <label class="w-full px-3 py-2 flex gap-3 align-items-center text-gray-900 dark:text-white">
-                    <input id="allow_multiple_choices" type="checkbox" name="allow_multiple_choices" v-model="form.allow_multiple_choices"
-                        class="bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500">
+                    <input id="allow_multiple_choices" type="checkbox" name="allow_multiple_choices" v-model="form.allow_multiple_choices" :disabled="pollDisabled"
+                    class="bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500">
                     Plusieurs réponses possibles
                 </label>
 
                 <label class="w-full px-3 py-2 flex gap-3 align-items-center text-gray-900 dark:text-white">
-                    <input id="allow_vote_change" type="checkbox" name="allow_vote_change" v-model="form.allow_vote_change"
-                        class="bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500">
+                    <input id="allow_vote_change" type="checkbox" name="allow_vote_change" v-model="form.allow_vote_change" :disabled="pollDisabled"
+                    class="bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500">
                     Modification du vote possible
                 </label>
 
                 <label class="w-full px-3 py-2 flex gap-3 align-items-center text-gray-900 dark:text-white">
-                    <input id="results_public" type="checkbox" name="results_public" v-model="form.results_public"
-                        class="bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500">
+                    <input id="results_public" type="checkbox" name="results_public" v-model="form.results_public" :disabled="pollDisabled"
+                    class="bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:border-transparent border-gray-300 dark:border-gray-600 focus:ring-teal-500 dark:focus:ring-purple-500">
                     Résultats publics
                 </label>
             </div>
 
             <div class="flex justify-end gap-3">
-                <button @click="saveDraft" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer" :disabled="loading">Enregistrer le Brouillon</button>
-                <button @click="publishPoll" class="px-4 py-2 bg-teal-600 dark:bg-purple-900 text-white rounded-md hover:bg-teal-700 dark:hover:bg-purple-800 cursor-pointer" :disabled="loading">Publier le formulaire</button>
+                <button @click="saveDraft" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md"
+                :class="{ 'hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer' : !pollDisabled }" :disabled="loading || pollDisabled">Enregistrer le Brouillon</button>
+                <button @click="publishPoll" class="px-4 py-2 bg-teal-600 dark:bg-purple-900 text-white rounded-md"
+                :class="{ 'hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer' : !pollDisabled }" :disabled="loading || pollDisabled">Publier le formulaire</button>
             </div>
         </form>
     </article>
